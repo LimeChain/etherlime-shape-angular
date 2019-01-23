@@ -1,44 +1,108 @@
-<div style="text-align:center">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-  <router-outlet></router-outlet>
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <div style="text-align:center">
+        <h1>
+          Welcome to {{ title }}!
+        </h1>
+        <hr>
+        <router-outlet></router-outlet>
 
-  <input type="text" id="input_ToDo" [(ngModel)]='state' placeholder="To Do"><br>
+        <!-- <input type="text" id="input_ToDo" [(ngModel)]='state' placeholder="To Do"><br> -->
+        <form class="form-inline text-center">
+          <!-- <div class="form-group mb-2">
+            <label for="staticEmail2" class="sr-only">Email</label>
+            <input type="text" readonly class="form-control-plaintext" id="staticEmail2" value="email@example.com">
+          </div> -->
+          <span>Add new todo:</span>
+          <div class="form-group mx-sm-3 mb-2">
+            <label for="inputTodo" class="sr-only">Text for todo</label>
+            <input type="text" #todoText class="form-control" id="inputTodo" placeholder="todo text">
+          </div>
+          <button type="submit" class="btn btn-success mb-2" [ngClass]="{disabled: inactiveButton}" (click)="addToDo(todoText)">Add
+            to list</button>
+        </form>
+        <!-- <input type="button" (click)="setContract()" value="Set Contract"> -->
 
-  <input type="button" (click)="setContract()" value="Set Contract">
+        <!-- <input type="button" (click)="addToDo()" value="Add new To Do">
 
-  <input type="button" (click)="addToDo()" value="Add new To Do">
+        <input type="button" (click)="assignToDo()" value="Assign To Do">
 
-  <input type="button" (click)="assignToDo()" value="Assign To Do">
+        <input type="button" (click)="changeToDoStatus()" value="Change ToDo Status">
 
-  <input type="button" (click)="changeToDoStatus()" value="Change ToDo Status">
+        <input type="button" (click)="removeToDo()" value="Remove ToDo">
 
-  <input type="button" (click)="removeToDo()" value="Remove ToDo">
+        <input type="button" (click)="getToDo()" value="Get ToDos toDo">
 
-  <input type="button" (click)="getToDo()" value="Get ToDos toDo">
+        <input type="button" (click)="getInProgress()" value="Get ToDos inProgress">
 
-  <input type="button" (click)="getInProgress()" value="Get ToDos inProgress">
+        <input type="button" (click)="getDone()" value="Get ToDos done">
+        <p></p> -->
+        <!-- <textarea data-ng-model="myModel"></textarea>    -->
+        <hr>
+        <div class="alert alert-success" role="alert" *ngIf="successMessage">
+          {{successMessage}}
+        </div>
+        <div class="alert alert-secondary" role="alert" *ngIf="errorMessage">
+          {{errorMessage}}
+        </div>
+        <div class="alert alert-info" role="alert" *ngIf="infoMessage">
+          {{infoMessage}}
+        </div>
+        <hr>
+        <!-- <button class="btn btn-primary" (click)="getToDoStatuses()">GET TODOS</button> -->
+      </div>
+    </div>
 
-  <input type="button" (click)="getDone()" value="Get ToDos done">
-  <p></p>
-  <!-- <textarea data-ng-model="myModel"></textarea>    -->
-  <button class="btn btn-primary">Desi</button>
-  <div>{{ myModel }}</div>
-
+  </div>
 </div>
 
+<div class="container">
+  <h2 class="text-center">Todo list:</h2>
+  <div class="row">
+    <div class="col-xs-4">
+      <div class="todo-column">
+        <span class="badge badge-secondary">TO DO</span>
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-danger" *ngIf="toDoStatus && toDoStatus.length < 1">NONE</li>
+          <li class="list-group-item" *ngFor="let todo of toDoStatus">{{todo}}
+            <div class="buttons-group">
+              <button class="btn btn-primary btn-sm btn-success" (click)="assignToDo(todo)">Assign</button>
+              <button class="btn btn-primary btn-sm btn-warning" (click)="changeToDoStatus(todo, 'progress')">Change
+                Status</button>
+              <button class="btn btn-primary btn-sm btn-danger" (click)="removeToDo(todo, 'todo')">Delete</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-xs-4">
+      <div class="todo-column">
+        <span class="badge badge-secondary">IN PROGRESS</span>
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-danger" *ngIf="inProgressStatus && inProgressStatus.length < 1">NONE</li>
+          <li class="list-group-item" *ngFor="let todo of inProgressStatus">{{todo}}
+            <div class="buttons-group">
+              <button class="btn btn-primary btn-sm btn-warning" (click)="changeToDoStatus(todo, 'done')">Change Status</button>
+              <button class="btn btn-primary btn-sm btn-danger" (click)="removeToDo(todo, 'progress')">Delete</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-xs-4">
 
-  <div class="input-group">
-    <input type="text" class="form-control" aria-label="Text input with dropdown button">
-    <div class="input-group-append">
-      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</button>
-      <div class="dropdown-menu">
-        <a class="dropdown-item" href="#">Action</a>
-        <a class="dropdown-item" href="#">Another action</a>
-        <a class="dropdown-item" href="#">Something else here</a>
-        <div role="separator" class="dropdown-divider"></div>
-        <a class="dropdown-item" href="#">Separated link</a>
+      <div class="todo-column">
+        <span class="badge badge-secondary">DONE</span>
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-danger" *ngIf="inProgressStatus && doneStatus.length < 1">NONE</li>
+          <li class="list-group-item" *ngFor="let todo of doneStatus">{{todo}}
+            <div class="buttons-group">
+              <button class="btn btn-primary btn-sm btn-danger" (click)="removeToDo(todo, 'done')">Delete</button>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
+</div>
