@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
+import { ButtonsModule } from 'ngx-bootstrap/buttons'
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +12,7 @@ import { FormsModule } from '@angular/forms';
     AppComponent
   ],
   imports: [
+    ButtonsModule,
     BrowserModule,
     AppRoutingModule,
     FormsModule
