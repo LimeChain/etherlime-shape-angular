@@ -26,32 +26,31 @@ describe('Example', () => {
     });
 
     it('should add new ToDo', async () => {
-        let toDoStatus = await toDoInstance.getToDoStatus(shoppingToDo)
+        let index = getToDoIndex(shoppingToDo)
+        let toDoStatus = await toDoInstance.getToDoStatus(index)
         assert.equal(toDoStatus, 1)
     })
 
-    it('should revert if ToDo was already added', async () => {
-        await assert.revert(toDoInstance.addToDo(shoppingToDo))
-    })
-
     it('should assign ToDo', async () => {
-        await toDoInstance.assignToDo(shoppingToDo);
-        let assignedToDo = await toDoInstance.getAssignee(shoppingToDo);
+        let index = getToDoIndex(shoppingToDo)
+        await toDoInstance.assignToDo(index);
+        let assignedToDo = await toDoInstance.getAssignee(index);
         assert.equal(assignedToDo, aliceAccount.wallet.address)
     })
 
     it('should revert if ToDo was already assigned', async () => {
-        await assert.revert(toDoInstance.assignToDo(shoppingToDo))
+        let index = getToDoIndex(shoppingToDo)
+        await assert.revert(toDoInstance.assignToDo(index))
     })
 
     it('should revert if ToDo was not added to the list', async () => {
-        await assert.revert(toDoInstance.assignToDo('buy lemonade'))
+        await assert.revert(toDoInstance.assignToDo(5))
     })
 
     it('should change ToDo status', async () => {
         let index = await getToDoIndex(shoppingToDo)
         await toDoInstance.changeToDoStatus(index)
-        let toDoStatus = await toDoInstance.getToDoStatus(shoppingToDo)
+        let toDoStatus = await toDoInstance.getToDoStatus(index)
         assert.equal(toDoStatus, 2)
     });
 
@@ -70,7 +69,7 @@ describe('Example', () => {
     it('should remove ToDo', async () => {
         let index = await getToDoIndex(shoppingToDo)
         await toDoInstance.removeToDo(index)
-        let toDoStatus = await toDoInstance.getToDoStatus(shoppingToDo);
+        let toDoStatus = await toDoInstance.getToDoStatus(index);
         assert.equal(toDoStatus, 0)
     })
 });

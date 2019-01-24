@@ -21,29 +21,35 @@ export class AppComponent {
   public errorMessage: string;
   public contractInstance: any;
   public contractAddress = '0xc9707E1e496C12f1Fa83AFbbA8735DA697cdBf64';
-  public toDoStatus: any;
-  public inProgressStatus: any;
-  public doneStatus: any;
+  public toDos: any;
   public inactiveButton;
+  public provider: any;
 
   constructor() {
-    this.toDoStatus = [];
-    this.inProgressStatus = [];
-    this.doneStatus = [];
 
-    etherlime.ContractAt(ToDo, this.contractAddress).then((result) => {
-      this.contractInstance = result;
+  }
+
+  async ngOnInit() {
+    this.toDos = {
+      toDo: [],
+      inProgress: [],
+      done: []
+    }
+    try {
+      this.provider = new ethers.providers.Web3Provider(web3.currentProvider);
+      this.contractInstance = await new ethers.Contract(this.contractAddress, ToDo.abi, this.provider)
       this.successMessage = 'The contract has been set and is ready to interact with it!';
-      this.getToDoStatuses();
-    }).catch((e) => {
-      this.errorMessage = e.message;
-    });
+      await this.getToDoStatuses();
 
+    } catch (e) {
+      this.errorMessage = e.message;
+    }
   }
 
   private async getToDoIndex(_toDo) {
     const indexCounter = await this.contractInstance.indexCounter();
-    for (let i = 0; i < indexCounter.toNumber(); i++) {
+    const counter = indexCounter.toNumber();
+    for (let i = 0; i < indexCounter; i++) {
       let toDo = await this.contractInstance.getToDoByIndex(i);
       if (toDo === _toDo) {
         return i
@@ -51,20 +57,19 @@ export class AppComponent {
     }
   }
 
-  private async getSignerInstance() {
-    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
-    const signer = await provider.getSigner();
-    const contract = new ethers.Contract(this.contractAddress, ToDo.abi, provider)
-    const instance = await contract.connect(signer);
-    return instance;
+  private async connectWithSigner() {
+    const signer = await this.provider.getSigner();
+    this.contractInstance = await this.contractInstance.connect(signer);
   }
 
   public async addToDo(todo) {
+
     try {
+      await this.connectWithSigner()
       this.inactiveButton = true;
       await this.contractInstance.addToDo(todo.value);
       this.addInfoMessage('ToDo has been added!');
-      this.toDoStatus.push(todo.value);
+      this.toDos.toDo.push(todo.value);
       this.inactiveButton = false;
     } catch (e) {
       this.addInfoMessage(`Transaction failed. Are you sure you hadn't already added this ToDo! ${e.message}`);
@@ -74,8 +79,9 @@ export class AppComponent {
 
   public async assignToDo(assignedTodo) {
     try {
-      const instance = await this.getSignerInstance();
-      await instance.assignToDo(assignedTodo);
+      await this.connectWithSigner()
+      let index = await this.getToDoIndex(assignedTodo);
+      await this.contractInstance.assignToDo(index);
       this.addInfoMessage('ToDo was assigned to you!')
     } catch (e) {
       this.addInfoMessage(`${e.message}. You can not assign to a ToDo if it is not added the list!`)
@@ -84,11 +90,8 @@ export class AppComponent {
 
   public async changeToDoStatus(todo, destination) {
     try {
-      const instance = await this.getSignerInstance();
       const index = await this.getToDoIndex(todo);
-      await instance.changeToDoStatus(index);
-
-      this.changeCurrentStatus(todo, destination);
+      await this.contractInstance.changeToDoStatus(index);
       this.addInfoMessage('Status has been changed!');
     } catch (e) {
       this.addInfoMessage(`You can not change ToDo's status if it is not assigned to you! ${e.message}`);
@@ -109,18 +112,20 @@ export class AppComponent {
 
   private async getToDoStatuses() {
     try {
-      let indexLength = await this.contractInstance.indexCounter();
-      for (let i = 0; i < indexLength.toNumber(); i++) {
+      let indexCounter = await this.contractInstance.indexCounter();
+      let index = indexCounter.toNumber();
+      for (let i = 0; i < index; i++) {
         let toDo = await this.contractInstance.getToDoByIndex(i)
-        let status = await this.contractInstance.getToDoStatus(toDo);
+        let status = await this.contractInstance.getToDoStatus(i);
         if (status === 1) {
-          this.toDoStatus.push(toDo);
+          this.toDos.toDo.push(toDo);
         } else if (status === 2) {
-          this.inProgressStatus.push(toDo);
+          this.toDos.inProgress.push(toDo);
         } else if (status === 3) {
-          this.doneStatus.push(toDo);
+          this.toDos.done.push(toDo);
         }
       }
+
     } catch (e) {
       this.addInfoMessage(e.message)
     }
@@ -137,23 +142,42 @@ export class AppComponent {
     }, 5000);
   }
 
-  private changeCurrentStatus(todo, destination) {
-    if (destination === 'progress') {
-      this.toDoStatus.splice(this.toDoStatus.indexOf(todo), 1);
-      this.inProgressStatus.push(todo);
-    } else if (destination === 'done') {
-      this.inProgressStatus.splice(this.inProgressStatus.indexOf(todo), 1);
-      this.doneStatus.push(todo);
+  public async moveToInProgress(todo) {
+
+    try {
+      await this.connectWithSigner()
+      const index = await this.getToDoIndex(todo);
+      await this.contractInstance.changeToDoStatus(index);
+      this.toDos.toDo.splice(this.toDos.toDo.indexOf(todo), 1);
+      this.toDos.inProgress.push(todo);
+      this.addInfoMessage('Status has been changed!');
+    } catch (e) {
+      this.addInfoMessage(`You can not change ToDo's status if it is not assigned to you! ${e.message}`);
     }
+  }
+
+  public async moveToDone(todo) {
+
+    try {
+      await this.connectWithSigner()
+      const index = await this.getToDoIndex(todo);
+      await this.contractInstance.changeToDoStatus(index);
+      this.toDos.inProgress.splice(this.toDos.inProgress.indexOf(todo), 1);
+      this.toDos.done.push(todo);
+      this.addInfoMessage('Status has been changed!');
+    } catch (e) {
+      this.addInfoMessage(`You can not change ToDo's status if it is not assigned to you! ${e.message}`);
+    }
+
   }
 
   private cleanCurrentTodo(todo, destination) {
     if (destination === 'todo') {
-      this.toDoStatus.splice(this.toDoStatus.indexOf(todo), 1);
+      this.toDos.toDo.splice(this.toDos.toDo.indexOf(todo), 1);
     } else if (destination === 'progress') {
-      this.inProgressStatus.splice(this.inProgressStatus.indexOf(todo), 1);
+      this.toDos.inProgress.splice(this.toDos.inProgress.indexOf(todo), 1);
     } else if (destination === 'done') {
-      this.doneStatus.splice(this.doneStatus.indexOf(todo), 1);
+      this.toDos.done.splice(this.toDos.done.indexOf(todo), 1);
     }
   }
 

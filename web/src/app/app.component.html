@@ -49,11 +49,11 @@
       <div class="todo-column">
         <span class="badge badge-secondary">TO DO</span>
         <ul class="list-group">
-          <li class="list-group-item list-group-item-danger" *ngIf="toDoStatus && toDoStatus.length < 1">NONE</li>
-          <li class="list-group-item" *ngFor="let todo of toDoStatus">{{todo}}
+          <li class="list-group-item list-group-item-danger" *ngIf="toDos && toDos.toDo.length < 1">NONE</li>
+          <li class="list-group-item" *ngFor="let todo of toDos.toDo">{{todo}}
             <div class="buttons-group">
               <button class="btn btn-primary btn-sm btn-success" (click)="assignToDo(todo)">Assign</button>
-              <button class="btn btn-primary btn-sm btn-warning" (click)="changeToDoStatus(todo, 'progress')">Change
+              <button class="btn btn-primary btn-sm btn-warning" (click)="moveToInProgress(todo)">Change
                 Status</button>
               <button class="btn btn-primary btn-sm btn-danger" (click)="removeToDo(todo, 'todo')">Delete</button>
             </div>
@@ -65,10 +65,10 @@
       <div class="todo-column">
         <span class="badge badge-secondary">IN PROGRESS</span>
         <ul class="list-group">
-          <li class="list-group-item list-group-item-danger" *ngIf="inProgressStatus && inProgressStatus.length < 1">NONE</li>
-          <li class="list-group-item" *ngFor="let todo of inProgressStatus">{{todo}}
+          <li class="list-group-item list-group-item-danger" *ngIf="toDos && toDos.inProgress.length < 1">NONE</li>
+          <li class="list-group-item" *ngFor="let todo of toDos.inProgress">{{todo}}
             <div class="buttons-group">
-              <button class="btn btn-primary btn-sm btn-warning" (click)="changeToDoStatus(todo, 'done')">Change Status</button>
+              <button class="btn btn-primary btn-sm btn-warning" (click)="moveToDone(todo)">Change Status</button>
               <button class="btn btn-primary btn-sm btn-danger" (click)="removeToDo(todo, 'progress')">Delete</button>
             </div>
           </li>
@@ -80,8 +80,8 @@
       <div class="todo-column">
         <span class="badge badge-secondary">DONE</span>
         <ul class="list-group">
-          <li class="list-group-item list-group-item-danger" *ngIf="inProgressStatus && doneStatus.length < 1">NONE</li>
-          <li class="list-group-item" *ngFor="let todo of doneStatus">{{todo}}
+          <li class="list-group-item list-group-item-danger" *ngIf="toDos && toDos.done.length < 1">NONE</li>
+          <li class="list-group-item" *ngFor="let todo of toDos.done">{{todo}}
             <div class="buttons-group">
               <button class="btn btn-primary btn-sm btn-danger" (click)="removeToDo(todo, 'done')">Delete</button>
             </div>
