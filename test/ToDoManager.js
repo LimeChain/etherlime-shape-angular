@@ -18,11 +18,6 @@ describe('Example', () => {
     let shoppingToDo = "go shopping";
 
     before(async () => {
-        // const defaultConfigs = {
-        //     gasPrice: 20000000000,
-        //     gasLimit: 8000000,
-        //     chainId: 0 // Suitable for deploying on private networks like Quorum
-        // }
         
         deployer = new etherlime.EtherlimeGanacheDeployer(aliceAccount.secretKey);
         toDoInstance = await deployer.deploy(ToDoManager);
@@ -71,7 +66,6 @@ describe('Example', () => {
         await toDoInstance.changeToDoStatus(index)
         await assert.revert(toDoInstance.changeToDoStatus(index))
     })
-
 
     it('should remove ToDo', async () => {
         let index = await getToDoIndex(shoppingToDo)

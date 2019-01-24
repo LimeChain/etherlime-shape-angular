@@ -1,11 +1,9 @@
 declare let require: any;
 declare var web3: any;
-declare let window: any;
 import { Component } from '@angular/core';
 const etherlime = require('etherlime');
 const ethers = require('ethers');
 const ToDo = require('../../../build/ToDoManager.json');
-// const Web3 = require('web3');
 
 
 @Component({
@@ -18,24 +16,17 @@ const ToDo = require('../../../build/ToDoManager.json');
 export class AppComponent {
   title = 'My Decentralized App';
 
-  public state: string;
   public successMessage: string;
   public infoMessage: string;
   public errorMessage: string;
   public contractInstance: any;
-  public networkProvider: any;
-  private blockChainNetwork = 'http://localhost:8545';
-  public wallet: any;
-  public pk = '0x7ab741b57e8d94dd7e1a29055646bafde7010f38a900f55bbd7647880faa6ee8';
-  public contractAddress = '0xaa803cEA17746d29493a6a44E203376479023D2F';
-  public connectedContract: any;
+  public contractAddress = '0xc9707E1e496C12f1Fa83AFbbA8735DA697cdBf64';
   public toDoStatus: any;
   public inProgressStatus: any;
   public doneStatus: any;
   public inactiveButton;
 
   constructor() {
-    console.log('HERE CONSTRUCTOR');
     this.toDoStatus = [];
     this.inProgressStatus = [];
     this.doneStatus = [];
@@ -68,15 +59,6 @@ export class AppComponent {
     return instance;
   }
 
-  // public async setContract() {
-  //   try {
-  //     this.contractInstance = await etherlime.ContractAt(ToDo, this.contractAddress)
-  //     this.infoMessage = "The contract has been set and is ready to interact with it!"
-  //   } catch (e) {
-  //     this.infoMessage = e.message
-  //   }
-  // }
-
   public async addToDo(todo) {
     try {
       this.inactiveButton = true;
@@ -96,7 +78,7 @@ export class AppComponent {
       await instance.assignToDo(assignedTodo);
       this.addInfoMessage('ToDo was assigned to you!')
     } catch (e) {
-      this.addInfoMessage(`${e.message}. You can not assign to a ToDo if it is not added the list first!`)
+      this.addInfoMessage(`${e.message}. You can not assign to a ToDo if it is not added the list!`)
     }
   }
 
@@ -118,21 +100,14 @@ export class AppComponent {
       const index = await this.getToDoIndex(todo);
       await this.contractInstance.removeToDo(index);
       this.cleanCurrentTodo(todo, destination);
-      this.infoMessage = "ToDo has been removed!"
+      this.addInfoMessage("ToDo has been removed!")
     } catch (e) {
-      this.infoMessage = "ToDo not found to be removed. Add it first!"
-    }
-  }
-
-  public async getToDoStatus() {
-    let result = await this.contractInstance.getToDoStatus(this.state)
-    if (result) {
-      this.infoMessage = result
+      this.addInfoMessage("ToDo not found to be removed. Add it first!")
     }
   }
 
 
-  public async getToDoStatuses() {
+  private async getToDoStatuses() {
     try {
       let indexLength = await this.contractInstance.indexCounter();
       for (let i = 0; i < indexLength.toNumber(); i++) {
@@ -145,84 +120,24 @@ export class AppComponent {
         } else if (status === 3) {
           this.doneStatus.push(toDo);
         }
-
-        console.log(this.inProgressStatus)
       }
     } catch (e) {
-      this.infoMessage = e.message
+      this.addInfoMessage(e.message)
     }
   }
 
-
-  public async getToDo() {
-    let toDoArray = [];
-    try {
-      let indexLength = await this.contractInstance.indexCounter();
-      for (let i = 0; i < indexLength.toNumber(); i++) {
-        let toDo = await this.contractInstance.getToDoByIndex(i)
-        let status = await this.contractInstance.getToDoStatus(toDo);
-        if (status == 1) {
-          toDoArray.push(toDo)
-        }
-      }
-
-      this.infoMessage = `${toDoArray}`;
-
-    } catch (e) {
-      this.infoMessage = `Some error occur. ${e.message}`
-    }
-  }
-
-  public async getInProgress() {
-    let inProgressArray = [];
-    try {
-      let indexLength = await this.contractInstance.indexCounter();
-      for (let i = 0; i < indexLength.toNumber(); i++) {
-        let toDo = await this.contractInstance.getToDoByIndex(i)
-        let status = await this.contractInstance.getToDoStatus(toDo);
-        if (status == 2) {
-          inProgressArray.push(toDo)
-        }
-      }
-
-      this.infoMessage = `${inProgressArray}`;
-
-    } catch (e) {
-      this.infoMessage = `Some error occur. ${e.message}`
-    }
-  }
-
-  public async getDone() {
-    let doneArray = [];
-    try {
-      let indexLength = await this.contractInstance.indexCounter();
-      for (let i = 0; i < indexLength.toNumber(); i++) {
-        let toDo = await this.contractInstance.getToDoByIndex(i)
-        let status = await this.contractInstance.getToDoStatus(toDo);
-        if (status == 3) {
-          doneArray.push(toDo)
-        }
-      }
-
-      this.infoMessage = `${doneArray}`;
-
-    } catch (e) {
-      this.infoMessage = `Some error occur. ${e.message}`
-    }
-  }
-
-  public addInfoMessage(message: string) {
+  private addInfoMessage(message: string) {
     this.infoMessage = message;
     this.clearInfoMessage();
   }
 
-  public async clearInfoMessage() {
+  private async clearInfoMessage() {
     setTimeout(() => {
       this.infoMessage = '';
     }, 5000);
   }
 
-  public changeCurrentStatus(todo, destination) {
+  private changeCurrentStatus(todo, destination) {
     if (destination === 'progress') {
       this.toDoStatus.splice(this.toDoStatus.indexOf(todo), 1);
       this.inProgressStatus.push(todo);
@@ -232,7 +147,7 @@ export class AppComponent {
     }
   }
 
-  public cleanCurrentTodo(todo, destination) {
+  private cleanCurrentTodo(todo, destination) {
     if (destination === 'todo') {
       this.toDoStatus.splice(this.toDoStatus.indexOf(todo), 1);
     } else if (destination === 'progress') {

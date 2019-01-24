@@ -30,7 +30,7 @@ contract ToDoManager {
     function changeToDoStatus(uint _index) onlyAssignee(_index) public {
         string memory _toDo = indexToDo[_index];
         uint currentStatus = uint(toDoStatus[_toDo]);
-        require(uint(currentStatus) <= 3);
+        require(currentStatus < 3);
         toDoStatus[_toDo] = Status(currentStatus + 1);
     }
     
