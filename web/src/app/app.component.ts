@@ -88,16 +88,6 @@ export class AppComponent {
     }
   }
 
-  public async changeToDoStatus(todo, destination) {
-    try {
-      const index = await this.getToDoIndex(todo);
-      await this.contractInstance.changeToDoStatus(index);
-      this.addInfoMessage('Status has been changed!');
-    } catch (e) {
-      this.addInfoMessage(`You can not change ToDo's status if it is not assigned to you! ${e.message}`);
-    }
-  }
-
   public async removeToDo(todo, destination) {
     try {
       const index = await this.getToDoIndex(todo);
