@@ -1,5 +1,5 @@
 declare let require: any;
-declare var web3: any;
+declare let web3: any;
 import { Component } from '@angular/core';
 const etherlime = require('etherlime');
 const ethers = require('ethers');
@@ -20,29 +20,32 @@ export class AppComponent {
   public infoMessage: string;
   public errorMessage: string;
   public contractInstance: any;
-  public contractAddress = '0xc9707E1e496C12f1Fa83AFbbA8735DA697cdBf64';
-  public toDos: any;
+  public contractAddress = '0xa00f6A3a3D00979D7B7E23D7C7dF6CC7E255Ad88';
+  public toDos = {
+    toDo: [],
+    inProgress: [],
+    done: []
+  }
   public inactiveButton;
-  public provider: any;
 
   constructor() {
-
+  
   }
 
   async ngOnInit() {
-    this.toDos = {
-      toDo: [],
-      inProgress: [],
-      done: []
-    }
     try {
-      this.provider = new ethers.providers.Web3Provider(web3.currentProvider);
-      this.contractInstance = await new ethers.Contract(this.contractAddress, ToDo.abi, this.provider)
+      const provider = new ethers.providers.Web3Provider(web3.currentProvider);
+      const deployedContract = await new ethers.Contract(this.contractAddress, ToDo.abi, provider)
+      const signer = await provider.getSigner();
+      this.contractInstance = await deployedContract.connect(signer);
       this.successMessage = 'The contract has been set and is ready to interact with it!';
-      await this.getToDoStatuses();
-
+      this.toDos = await this.getToDoStatuses();
     } catch (e) {
-      this.errorMessage = e.message;
+      if(e.message.includes('web3 is not defined')){
+        this.errorMessage = 'Error. Make sure you are using Metamask'
+      } else {
+        this.errorMessage = e.message;
+      }
     }
   }
 
@@ -57,15 +60,9 @@ export class AppComponent {
     }
   }
 
-  private async connectWithSigner() {
-    const signer = await this.provider.getSigner();
-    this.contractInstance = await this.contractInstance.connect(signer);
-  }
-
   public async addToDo(todo) {
 
     try {
-      await this.connectWithSigner()
       this.inactiveButton = true;
       await this.contractInstance.addToDo(todo.value);
       this.addInfoMessage('ToDo has been added!');
@@ -77,15 +74,29 @@ export class AppComponent {
     }
   }
 
-  public async assignToDo(assignedTodo) {
+  public async moveToInProgress(todo) {
     try {
-      await this.connectWithSigner()
-      let index = await this.getToDoIndex(assignedTodo);
-      await this.contractInstance.assignToDo(index);
-      this.addInfoMessage('ToDo was assigned to you!')
+      const index = await this.getToDoIndex(todo);
+      await this.contractInstance.changeToDoStatus(index);
+      this.toDos.toDo.splice(this.toDos.toDo.indexOf(todo), 1);
+      this.toDos.inProgress.push(todo);
+      this.addInfoMessage('Status has been changed!');
     } catch (e) {
-      this.addInfoMessage(`${e.message}. You can not assign to a ToDo if it is not added the list!`)
+      this.addInfoMessage(e.message);
     }
+  }
+
+  public async moveToDone(todo) {
+    try {
+      const index = await this.getToDoIndex(todo);
+      await this.contractInstance.changeToDoStatus(index);
+      this.toDos.inProgress.splice(this.toDos.inProgress.indexOf(todo), 1);
+      this.toDos.done.push(todo);
+      this.addInfoMessage('Status has been changed!');
+    } catch (e) {
+      this.addInfoMessage(e.message);
+    }
+
   }
 
   public async removeToDo(todo, destination) {
@@ -101,6 +112,12 @@ export class AppComponent {
 
 
   private async getToDoStatuses() {
+    let statuses = {
+      toDo: [],
+      inProgress: [],
+      done: []
+    }
+
     try {
       let indexCounter = await this.contractInstance.indexCounter();
       let index = indexCounter.toNumber();
@@ -108,17 +125,19 @@ export class AppComponent {
         let toDo = await this.contractInstance.getToDoByIndex(i)
         let status = await this.contractInstance.getToDoStatus(i);
         if (status === 1) {
-          this.toDos.toDo.push(toDo);
+          statuses.toDo.push(toDo);
         } else if (status === 2) {
-          this.toDos.inProgress.push(toDo);
+          statuses.inProgress.push(toDo);
         } else if (status === 3) {
-          this.toDos.done.push(toDo);
+          statuses.done.push(toDo);
         }
       }
 
     } catch (e) {
       this.addInfoMessage(e.message)
     }
+
+    return statuses;
   }
 
   private addInfoMessage(message: string) {
@@ -130,35 +149,6 @@ export class AppComponent {
     setTimeout(() => {
       this.infoMessage = '';
     }, 5000);
-  }
-
-  public async moveToInProgress(todo) {
-
-    try {
-      await this.connectWithSigner()
-      const index = await this.getToDoIndex(todo);
-      await this.contractInstance.changeToDoStatus(index);
-      this.toDos.toDo.splice(this.toDos.toDo.indexOf(todo), 1);
-      this.toDos.inProgress.push(todo);
-      this.addInfoMessage('Status has been changed!');
-    } catch (e) {
-      this.addInfoMessage(`You can not change ToDo's status if it is not assigned to you! ${e.message}`);
-    }
-  }
-
-  public async moveToDone(todo) {
-
-    try {
-      await this.connectWithSigner()
-      const index = await this.getToDoIndex(todo);
-      await this.contractInstance.changeToDoStatus(index);
-      this.toDos.inProgress.splice(this.toDos.inProgress.indexOf(todo), 1);
-      this.toDos.done.push(todo);
-      this.addInfoMessage('Status has been changed!');
-    } catch (e) {
-      this.addInfoMessage(`You can not change ToDo's status if it is not assigned to you! ${e.message}`);
-    }
-
   }
 
   private cleanCurrentTodo(todo, destination) {

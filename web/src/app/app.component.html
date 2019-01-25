@@ -52,7 +52,6 @@
           <li class="list-group-item list-group-item-danger" *ngIf="toDos && toDos.toDo.length < 1">NONE</li>
           <li class="list-group-item" *ngFor="let todo of toDos.toDo">{{todo}}
             <div class="buttons-group">
-              <button class="btn btn-primary btn-sm btn-success" (click)="assignToDo(todo)">Assign</button>
               <button class="btn btn-primary btn-sm btn-warning" (click)="moveToInProgress(todo)">Change
                 Status</button>
               <button class="btn btn-primary btn-sm btn-danger" (click)="removeToDo(todo, 'todo')">Delete</button>
