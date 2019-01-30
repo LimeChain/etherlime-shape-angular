@@ -2,57 +2,38 @@ pragma solidity ^0.5.0;
 
 contract ToDoManager {
     
-    enum Status {initial, toDo, inProgress, done}
-    mapping (uint => string) indexToDo;
-    mapping (string => Status) toDoStatus;
+    enum Status {Initial, ToDo, InProgress, Done}
+    mapping (uint => string) public todoByIndex;
+    mapping (uint => Status) public statusOf;
     uint public indexCounter;
-    mapping (string => address) assignedToDo; 
     
-    modifier onlyAssignee(uint _index) {
-        string memory _toDo = indexToDo[_index];
-        require(msg.sender == assignedToDo[_toDo]);
-        _;
-    }
     
     function addToDo(string memory _toDo) public {
-        require(uint(toDoStatus[_toDo]) == uint(Status.initial));
-        toDoStatus[_toDo] = Status.toDo;
-        indexToDo[indexCounter] = _toDo;
-        indexCounter ++;
+        todoByIndex[indexCounter] = _toDo;
+        statusOf[indexCounter] = Status.ToDo;
+        indexCounter++;
     }
 
-    function assignToDo(string memory _toDo) public {
-        require(uint(toDoStatus[_toDo]) == 1);
-        require(assignedToDo[_toDo] == address(0));
-        assignedToDo[_toDo] = msg.sender;
-    }
     
-    function changeToDoStatus(uint _index) onlyAssignee(_index) public {
-        string memory _toDo = indexToDo[_index];
-        uint currentStatus = uint(toDoStatus[_toDo]);
+    function changeToDoStatus(uint _index) public {
+        uint currentStatus = uint(statusOf[_index]);
         require(currentStatus < 3);
-        toDoStatus[_toDo] = Status(currentStatus + 1);
+        statusOf[_index] = Status(currentStatus + 1);
     }
     
     function removeToDo(uint _index) public {
-        string memory _toDo = indexToDo[_index];
-        require(uint(toDoStatus[_toDo]) != uint(Status.initial));
-        toDoStatus[_toDo] = Status.initial;
-        assignedToDo[_toDo] = address(0);
-        indexToDo[_index] = "empty";
+        require(uint(statusOf[_index]) != uint(Status.Initial));
+        statusOf[_index] = Status.Initial;
+        todoByIndex[_index] = "empty";
     }
 
     function getToDoByIndex(uint _index) public view returns (string memory) {
-        return indexToDo[_index];
+        return todoByIndex[_index];
     }
 
-    function getToDoStatus(string memory _toDo) public view returns(Status) {
-        return toDoStatus[_toDo];
+    function getToDoStatus(uint _index) public view returns(Status) {
+        return statusOf[_index];
     }
 
-    function getAssignee(string memory _toDo) public view returns (address) {
-        return assignedToDo[_toDo];
-    }
-    
     
 }
