@@ -14,7 +14,6 @@ async function getToDoIndex(_toDo) {
 describe('Example', () => {
     let aliceAccount = accounts[3];
     let deployer;
-
     let shoppingToDo = "go shopping";
 
     before(async () => {

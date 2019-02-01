@@ -14,13 +14,13 @@ const ToDo = require('../../../build/ToDoManager.json');
 
 
 export class AppComponent {
-  title = 'My Decentralized App';
+  title = 'MyToDo dApp';
 
   public successMessage: string;
   public infoMessage: string;
   public errorMessage: string;
   public contractInstance: any;
-  public contractAddress = '0xa00f6A3a3D00979D7B7E23D7C7dF6CC7E255Ad88';
+  public contractAddress = ''; //the address of the deployed contract
   public toDos = {
     toDo: [],
     inProgress: [],
@@ -35,9 +35,8 @@ export class AppComponent {
   async ngOnInit() {
     try {
       const provider = new ethers.providers.Web3Provider(web3.currentProvider);
-      const deployedContract = await new ethers.Contract(this.contractAddress, ToDo.abi, provider)
       const signer = await provider.getSigner();
-      this.contractInstance = await deployedContract.connect(signer);
+      this.contractInstance = await etherlime.ContractAt(ToDo, this.contractAddress, signer, provider);
       this.successMessage = 'The contract has been set and is ready to interact with it!';
       this.toDos = await this.getToDoStatuses();
     } catch (e) {
