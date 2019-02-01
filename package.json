@@ -22,7 +22,7 @@
     "bootstrap": "^4.2.1",
     "core-js": "^2.5.4",
     "eth-lib": "^0.2.8",
-    "etherlime": "^0.10.5",
+    "etherlime": "^0.10.6",
     "ethers": "^4.0.21",
     "ngx-bootstrap": "^3.1.4",
     "process": "^0.11.10",
