@@ -14,7 +14,6 @@ async function getToDoIndex(_toDo) {
 describe('Example', () => {
     let aliceAccount = accounts[3];
     let deployer;
-    console.log(aliceAccount.wallet)
     let shoppingToDo = "go shopping";
 
     before(async () => {
@@ -47,7 +46,7 @@ describe('Example', () => {
     it('should remove ToDo', async () => {
         let index = await getToDoIndex(shoppingToDo)
         await toDoInstance.removeToDo(index)
-        let toDoStatus = await toDoInstance.getToDoStatus(index, {gasPrice: 2034523});
+        let toDoStatus = await toDoInstance.getToDoStatus(index);
         assert.equal(toDoStatus, 0)
     })
 });

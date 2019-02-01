@@ -68,7 +68,6 @@ export class AppComponent {
       this.toDos.toDo.push(todo.value);
       this.inactiveButton = false;
     } catch (e) {
-      console.log("er", e)
       this.addInfoMessage(`Transaction failed. Are you sure you hadn't already added this ToDo! ${e.message}`);
       this.inactiveButton = false;
     }
