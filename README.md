@@ -12,20 +12,21 @@ First you need to install Etherlime and to download the shape. In a new empty fo
     etherlime shape angular
 ```
 
-Now a tidy structured project must have been shaped. To enable its modules don't forget to run:
-```
-    npm install
-```
+Now a tidy structured project must have been shaped. Next step is to build a local ganache.
 
-Next step is to build a local ganache and to deploy the ToDoManager.sol smart contract.
 ```
     etherlime ganache
+```
+
+Deploy the ToDoManager.sol smart contract. In a new console tab run:
+
+```
     etherlime deploy
 ```
 
 The contract has been compiled within the deployment. But if you need to do it separately just run `etherlime compile`.
 
-When your deployment is finished successfully copy the address of the contract that is shown on the report table and assign its value to `contractAddress` variable declared in `web/src/app/app.component.ts` file. Now we are ready to run the dApp.
+When your deployment is finished successfully copy the address of the contract that is shown as a Result in the report table and assign its value to `contractAddress` variable declared in `web/src/app/app.component.ts` file. Now we are ready to run the dApp.
 
 ```
     cd web
