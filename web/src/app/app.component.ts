@@ -4,6 +4,7 @@ import { Component } from '@angular/core';
 const etherlime = require('etherlime');
 const ethers = require('ethers');
 const ToDo = require('../../../build/ToDoManager.json');
+const Config = require('../../../config.json');
 
 
 @Component({
@@ -20,7 +21,7 @@ export class AppComponent {
   public infoMessage: string;
   public errorMessage: string;
   public contractInstance: any;
-  public contractAddress = ''; //the address of the deployed contract
+  public contractAddress = Config.contractAddress;
   public toDos = {
     toDo: [],
     inProgress: [],
@@ -29,18 +30,19 @@ export class AppComponent {
   public inactiveButton;
 
   constructor() {
-  
+
   }
 
   async ngOnInit() {
     try {
+      console.log(this.contractAddress)
       const provider = new ethers.providers.Web3Provider(web3.currentProvider);
       const signer = await provider.getSigner();
       this.contractInstance = await etherlime.ContractAt(ToDo, this.contractAddress, signer, provider);
       this.successMessage = 'The contract has been set and is ready to interact with it!';
       this.toDos = await this.getToDoStatuses();
     } catch (e) {
-      if(e.message.includes('web3 is not defined')){
+      if (e.message.includes('web3 is not defined')) {
         this.errorMessage = 'Error. Make sure you are using Metamask'
       } else {
         this.errorMessage = e.message;
