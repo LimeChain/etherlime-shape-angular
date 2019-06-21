@@ -1,11 +1,17 @@
 declare let require: any;
 declare let web3: any;
 import { Component } from '@angular/core';
-const etherlime = require('etherlime');
+import { etherlime } from 'etherlime';
 const ethers = require('ethers');
 const ToDo = require('../../../build/ToDoManager.json');
 const Config = require('../../../config.json');
 
+
+interface MyWindow extends Window {
+  ethereum: any;
+}
+
+declare var window: MyWindow;
 
 @Component({
   selector: 'app-root',
@@ -35,7 +41,7 @@ export class AppComponent {
 
   async ngOnInit() {
     try {
-      console.log(this.contractAddress)
+      await window.ethereum.enable()
       const provider = new ethers.providers.Web3Provider(web3.currentProvider);
       const signer = await provider.getSigner();
       this.contractInstance = await etherlime.ContractAt(ToDo, this.contractAddress, signer, provider);
