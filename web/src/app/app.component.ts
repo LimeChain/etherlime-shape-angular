@@ -1,7 +1,7 @@
 declare let require: any;
 declare let web3: any;
 import { Component } from '@angular/core';
-import { etherlime } from 'etherlime';
+import { ContractAt } from 'etherlime-lib'
 const ethers = require('ethers');
 const ToDo = require('../../../build/ToDoManager.json');
 const Config = require('../../../config.json');
@@ -44,7 +44,7 @@ export class AppComponent {
       await window.ethereum.enable()
       const provider = new ethers.providers.Web3Provider(web3.currentProvider);
       const signer = await provider.getSigner();
-      this.contractInstance = await etherlime.ContractAt(ToDo, this.contractAddress, signer, provider);
+      this.contractInstance = await ContractAt(ToDo, this.contractAddress, signer, provider);
       this.successMessage = 'The contract has been set and is ready to interact with it!';
       this.toDos = await this.getToDoStatuses();
     } catch (e) {

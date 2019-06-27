@@ -1,1 +1,1 @@
-declare module 'etherlime'
+declare module 'etherlime-lib'
